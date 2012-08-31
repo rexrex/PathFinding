@@ -62,7 +62,7 @@
 	    };
 	    
 	    var init = (function(){
-	    	var i,j;
+	    	var i,j,l1,l2;
 	    	for(i=0,l1=height/size; i<l1; i++){
 	    		Barrier[i] = [];
 	    		for(j=0,l2=width/size; j<l2; j++){
@@ -77,7 +77,10 @@
 	    })();
 	    
 	    function initialize(){
-	    	var i,j;
+	    	var i,j,l1,l2;
+	    	Map    = [];
+	    	Father = [];
+	    	Index  = [];
 	    	for(i=0,l1=height/size; i<l1; i++){
 	    		Map[i] 	  = [];
 	    		Father[i] = [];
@@ -110,15 +113,16 @@
 	    		G: 0,
 	    		H: Manhattan ? Math.abs(startI-distI)*10 + Math.abs(startJ-distJ)*10 : Euclidean ? Math.sqrt((startI-distI)*(startI-distI)+(startJ-distJ)*(startJ-distJ))*10 : Chebyshev ? Math.max(Math.abs(startI-distI), Math.abs(startJ-distJ))*10 : 0
 	    	});
-	    	Index[startI][startJ] = OpenList.length - 1;
+	    	Index[startI][startJ] = 1;
 	    	//重复以下操作
 	    	while( (l=OpenList.length) && OpenList[1] ){
 	    		//遍历OpenList，查找F值最小的节点，更新二叉堆
 	    		node = OpenList.slice(1,2)[0];
+	    		OpenList[1] = OpenList[l-1];
 	    		Index[OpenList[1].i][OpenList[1].j] 	= 1;
 	    		Index[OpenList[l-1].i][OpenList[l-1].j] = 0;
-	    		OpenList[1] = OpenList[l-1];
 	    		OpenList.pop();
+	    		
 	    		v = 1;
 	    		while( true ) {
 	    			u = v;
@@ -131,9 +135,9 @@
 	    			}
 	    			if( u !== v ){
 	    				temp = OpenList[u];
-						OpenList[u]  = OpenList[v];
+						OpenList[u] = OpenList[v];
 						OpenList[v] = temp;
-						Index[OpenList[u].i][OpenList[u].j]   = u;
+						Index[OpenList[u].i][OpenList[u].j] = u;
 						Index[OpenList[v].i][OpenList[v].j] = v;
 	    			}
 	    			else break;
@@ -177,7 +181,6 @@
 	    			}
 	    			//如果在OpenList中，检查路径是否更好
 	    			else if(Map[row][col] === -1){
-	    				
 						if( node.G+(i%2?14:10) < OpenList[Index[row][col]].G ){
 							OpenList[Index[row][col]].G = node.G+(i%2?14:10);
 							child  = Index[row][col];
